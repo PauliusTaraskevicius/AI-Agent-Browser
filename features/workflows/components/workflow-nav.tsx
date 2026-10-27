@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { Plus, Workflow } from "lucide-react"
 
 import {
@@ -19,22 +18,23 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import type { Workflow as WorkflowRecord } from "@/db/schema"
+import { generateSlug } from "@/features/workflows/lib/generate-slug"
 
-const workflows = [
-  "dominant-wasp",
-  "honest-reindeer",
-  "expected-llama",
-  "essential-ocelot",
-  "creepy-echidna",
-  "eastern-silkworm",
-  "cultural-lion",
-  "proud-weasel",
-  "regional-bonobo",
-]
+type WorkflowNavProps = {
+  workflows: WorkflowRecord[]
+  createWorkflowAction: (name: string) => Promise<void>
+}
 
-export function WorkflowNav() {
+export function WorkflowNav({
+  workflows,
+  createWorkflowAction,
+}: WorkflowNavProps) {
   const { state } = useSidebar()
-  const [activeWorkflow, setActiveWorkflow] = React.useState(workflows[0])
+
+  function handleCreateWorkflow() {
+    void createWorkflowAction(generateSlug())
+  }
 
   if (state === "collapsed") {
     return (
@@ -52,7 +52,7 @@ export function WorkflowNav() {
                 <PopoverContent side="right" align="start">
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton>
+                      <SidebarMenuButton onClick={handleCreateWorkflow}>
                         <Plus />
                         <span>New workflow</span>
                       </SidebarMenuButton>
@@ -61,12 +61,9 @@ export function WorkflowNav() {
                   <Separator />
                   <SidebarMenu>
                     {workflows.map((workflow) => (
-                      <SidebarMenuItem key={workflow}>
-                        <SidebarMenuButton
-                          isActive={workflow === activeWorkflow}
-                          onClick={() => setActiveWorkflow(workflow)}
-                        >
-                          <span>{workflow}</span>
+                      <SidebarMenuItem key={workflow.id}>
+                        <SidebarMenuButton>
+                          <span>{workflow.name}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
@@ -83,19 +80,16 @@ export function WorkflowNav() {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Workflows</SidebarGroupLabel>
-      <SidebarGroupAction title="New workflow">
+      <SidebarGroupAction title="New workflow" onClick={handleCreateWorkflow}>
         <Plus />
         <span className="sr-only">New workflow</span>
       </SidebarGroupAction>
       <SidebarGroupContent>
         <SidebarMenu className="gap-y-0.5">
           {workflows.map((workflow) => (
-            <SidebarMenuItem key={workflow}>
-              <SidebarMenuButton
-                isActive={workflow === activeWorkflow}
-                onClick={() => setActiveWorkflow(workflow)}
-              >
-                <span>{workflow}</span>
+            <SidebarMenuItem key={workflow.id}>
+              <SidebarMenuButton>
+                <span>{workflow.name}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
